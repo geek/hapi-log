@@ -1,0 +1,85 @@
+version: '3.9'
+services:
+  # MongoDB: https://hub.docker.com/_/mongo/
+  mongo:
+    image: mongo:4.4
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - graylog
+  # Elasticsearch: https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    environment:
+      - http.host=0.0.0.0
+      - transport.host=localhost
+      - network.host=0.0.0.0
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+    networks:
+      - graylog
+  # Graylog: https://hub.docker.com/r/graylog/graylog/
+  graylog:
+    image: graylog/graylog:4.0
+    container_name: graylog
+    volumes:
+      - graylog_data:/usr/share/graylog/data
+    environment:
+      # CHANGE ME (must be at least 16 characters)!
+      - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
+      # Password: admin
+      - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+      - GRAYLOG_HTTP_EXTERNAL_URI=http://0.0.0.0:9000/
+      - DISABLE_TELEMETRY=1
+    networks:
+      - graylog
+    depends_on:
+      - mongo
+      - elasticsearch
+    ports:
+      # Containers should only listen on 127.0.0.1, Apache is our TLS proxy
+      # Graylog web interface and REST API
+      - 9000:9000
+      # Syslog TCP
+      # - 1514:1514
+      # Syslog UDP
+      # - 1514:1514/udp
+      # GELF TCP
+      - 12201:12201
+      # GELF UDP
+      - 12201:12201/udp
+      # GELF HTTP
+      - 12202:12202
+  example:
+    build: ./
+    image: log-example
+    container_name: example
+    init: true
+    networks:
+      - graylog
+    depends_on:
+      - graylog
+    ports:
+      - 127.0.0.1:8080:8080
+
+networks:
+  graylog:
+    driver: bridge
+# Volumes for persisting data, see https://docs.docker.com/engine/admin/volumes/volumes/
+volumes:
+  mongo_data:
+    driver: local
+  es_data:
+    driver: local
+  graylog_data:
+    driver: local

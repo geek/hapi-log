@@ -1,0 +1,17 @@
+{
+  "name": "hapi-log",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js | pino-gelf log -v -h graylog"
+  },
+  "keywords": [],
+  "author": "wyatt",
+  "license": "MPL-2.0",
+  "dependencies": {
+    "@hapi/hapi": "20.1.2",
+    "@hapi/log": "1.0.0-alpha",
+    "pino-gelf": "2.0.0"
+  }
+}
