@@ -1,6 +1,6 @@
-hapi-log is an example application to demonstrate using @hapi/log with Graylog and pino.
+hapi-log is an example application to demonstrate using [@hapi/log](https://www.npmjs.com/package/@hapi/log) with Graylog and pino.
 There is a custom pino logger that shows how to build a custom logger for @hapi/log.
-Also, the application shows how to integrate @hapi/log with Graylog.
+Also, the application shows how to integrate [@hapi/log](https://www.npmjs.com/package/@hapi/log) with Graylog.
 
 ## Instructions
 
